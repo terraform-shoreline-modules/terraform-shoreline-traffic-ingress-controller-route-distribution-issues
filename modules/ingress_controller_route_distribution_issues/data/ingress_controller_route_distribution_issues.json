@@ -1,0 +1,170 @@
+{
+  "name": "ingress_controller_route_distribution_issues",
+  "description": "This incident type involves problems with the distribution of routes in an Ingress Controller, specifically in Traefik. An Ingress Controller is a component of Kubernetes that manages external access to the services in a cluster. It acts as a reverse proxy and routes incoming traffic to the appropriate service. Route distribution issues can lead to service disruptions, as the traffic may not be properly directed to the intended service. This can affect the availability and reliability of applications running in the cluster.",
+  "params": [
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    },
+    {
+      "name": "DESIRED_NUMBER_OF_REPLICAS",
+      "value": ""
+    },
+    {
+      "name": "INGRESS_CONTROLLER_POD",
+      "value": ""
+    },
+    {
+      "name": "SERVICE_URL",
+      "value": ""
+    },
+    {
+      "name": "INGRESS_NAME",
+      "value": ""
+    },
+    {
+      "name": "NODE_NAME",
+      "value": ""
+    },
+    {
+      "name": "INGRESS_CONTROLLER_OR_TRAEFIK_DEPLOYMENT",
+      "value": ""
+    },
+    {
+      "name": "INGRESS_CONTROLLER_POD_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Ingress Controller Route Distribution Issues\nThis incident type involves problems with the distribution of routes in an Ingress Controller, specifically in Traefik. An Ingress Controller is a component of Kubernetes that manages external access to the services in a cluster. It acts as a reverse proxy and routes incoming traffic to the appropriate service. Route distribution issues can lead to service disruptions, as the traffic may not be properly directed to the intended service. This can affect the availability and reliability of applications running in the cluster."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if the Ingress Controller is running"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get pods -n ${NAMESPACE} | grep ${INGRESS_CONTROLLER_POD_NAME}`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the logs of the Ingress Controller"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl logs -n ${NAMESPACE} ${INGRESS_CONTROLLER_POD_NAME}`"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of the Traefik pods"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get pods -n ${NAMESPACE} -l \"app=traefik\"`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the logs of the Traefik pods"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl logs -n ${NAMESPACE} -l \"app=traefik\"`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the Ingress resources"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get ing -n ${NAMESPACE}`"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the status of the Ingress resources"
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl describe ing -n ${NAMESPACE} ${INGRESS_NAME}`"
+    },
+    {
+      "name": "cell_14",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the endpoints of the Ingress resources"
+    },
+    {
+      "name": "cell_15",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get endpoints -n ${NAMESPACE} ${INGRESS_NAME}`"
+    },
+    {
+      "name": "cell_16",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the events related to the Ingress resources"
+    },
+    {
+      "name": "cell_17",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | limit=1 | random=1 | `kubectl get events -n ${NAMESPACE} --sort-by='.metadata.creationTimestamp' | grep ${INGRESS_NAME}`"
+    },
+    {
+      "name": "cell_18",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Consider scaling up the Ingress Controller or Traefik to handle increased traffic and load."
+    },
+    {
+      "name": "cell_19",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_scale_up_deployment($NAMESPACE, $DESIRED_NUMBER_OF_REPLICAS, $INGRESS_CONTROLLER_OR_TRAEFIK_DEPLOYMENT)"
+    },
+    {
+      "name": "cell_20",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Verify that the Ingress Controller is running properly and that there are no issues with connectivity or resource allocation."
+    },
+    {
+      "name": "cell_21",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "pod | k8s_cluster_name=$K8S_CLUSTER_NAME | app='shoreline' | random=1 | limit=1 | invoke_ingress_checker($NAMESPACE, $INGRESS_CONTROLLER_POD, $SERVICE_URL, $NODE_NAME)"
+    }
+  ]
+}
